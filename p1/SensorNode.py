@@ -34,3 +34,13 @@ class SensorNode:
     def __sub__(self, other):
         return [self.position[0] - other.position[0], self.position[1] - other.position[1]]
     
+    
+    def __mul__(self, other):
+        print("yah mon")
+        if isinstance(other, np.float64) or isinstance(other, int) or isinstance(other, float):
+            return [self.position[0] * other, self.position[1] * other]
+        
+    def __truediv__(self, other):
+        if isinstance(other, float) or isinstance(other, int):
+            return [self.position[0] / other, self.position[1] / other]
+    

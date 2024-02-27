@@ -11,7 +11,7 @@ m = 2                       # Space dimensions
 d = 15                      # Desired distance among sensor nodes
 k = 1.2                     # Scaling factor
 r = k * d                   # Interaction range
-space_dim = 150             # Space dimensions
+space_dim = 50             # Space dimensions
 c1_alpha = 30
 c2_alpha = 2 * np.sqrt(c1_alpha)
 epsilon = 0.1
@@ -37,15 +37,19 @@ def algo_1_update_locations(nodes):
         g_term = np.zeros(2)
         c_term = np.zeros(2)
         for j_agent in i_agent.neighbors:
-            g_term += aS.n_ij(i_agent, j_agent) * aS.phi_alpha(aS.sigma_norm(i_agent - j_agent))
-            c_term += (j_agent - i_agent) * aS.a_ij(i_agent, j_agent)
-            print(c_term)
+            g_term += aS.n_ij(i_agent, j_agent) * aS.phi_alpha(aS.sigma_norm(i_agent - j_agent))  
+            #c_term += (j_agent - i_agent) * aS.a_ij(i_agent, j_agent)
+            #b/c this for some reason (*) doesn't want to apply sensor_nodes shit...
+            temp = j_agent - i_agent
+            adjacencymatrixbump = aS.a_ij(i_agent, j_agent)
+            
+            c_term += [temp[0] * adjacencymatrixbump, temp[1] * adjacencymatrixbump]
         g_term *= c1_alpha
         c_term = np.array(c_term)
         c_term *= c2_alpha
         
         ui = (g_term + c_term) * delta_t
-        print(ui)
+
         accels.append(ui)
         
     #then apply accelerations to the nodes so that we can update our velocity and position 
@@ -82,10 +86,11 @@ def main():
     #main simulation junk
     while True:
         cur_step += 1
+        print(cur_step)
         sim_section.clear()  # Clear the previous drawings
         sim_section.set_title(f"Simulation Graph: Step {cur_step}")
-        sim_section.set_xlim(0, space_dim)
-        sim_section.set_ylim(0, space_dim)
+        sim_section.set_xlim(0, 200)
+        sim_section.set_ylim(0, 200)
         
         # update neighbors and sim
         update_neighbors(nodes, sim_section)
@@ -93,7 +98,7 @@ def main():
         #prob need to do something with updating the connection
         figure.canvas.draw()
         figure.canvas.flush_events()
-        plt.pause(0.05)  # Adjust the pause time as needed for visualization
+        plt.pause(2)  # Adjust the pause time as needed for visualization
    
 #using this to check if the math actually adds up b/c im dumb      
 def test():
@@ -105,8 +110,8 @@ def test():
     con_section = figure.add_subplot(grid[1,0])
     figure.canvas.manager.set_window_title("MSN Fragmentation")
     sim_section.set_title("Simulation Graph: Step")
-    sim_section.set_xlim(0, 100)
-    sim_section.set_ylim(0, 100)
+    sim_section.set_xlim(0, 200)
+    sim_section.set_ylim(0, 200)
     vel_section.set_title("Velocity Graph")
     vel_section.set_xlabel("Simulation step")
     vel_section.set_ylabel("Velocity")

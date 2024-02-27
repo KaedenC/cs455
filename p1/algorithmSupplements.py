@@ -26,7 +26,6 @@ def bump_function(z):
     if 0 <= z < 0.2:
         return 1
     elif 0.2 <= z <= 1:
-        print((1 + np.cos(np.pi * (z-0.2) / (1-0.2))) / 2)
         return (1 + np.cos(np.pi * (z-0.2) / (1-0.2))) / 2
     else:
         return 0
