@@ -2,7 +2,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 class SensorNode:
-    def __init__(self, position):
+    def __init__(self, position, index):
+        self.index = index
         self.position = position  # Position in 2D space
         self.velocity = np.zeros(2)  # Initial velocity set to 0
         self.neighbors = []

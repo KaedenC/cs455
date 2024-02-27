@@ -37,7 +37,7 @@ def sigma_norm(z):
     if isinstance(z, np.ndarray) or isinstance(z, list): #do the calc for sigma norm between two vector positions... FUCK 
         return np.sqrt(1 + (epsilon*(magnitude(z)**2)))
     else:
-        return np.sqrt(1 + (epsilon*(z**2)) - 1) / epsilon
+        return (np.sqrt(1 + (epsilon*(z**2))) - 1) / epsilon
     
 def a_ij(i, j):
     r_alpha = sigma_norm(r)
