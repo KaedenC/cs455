@@ -17,17 +17,17 @@ epsilon = 0.1
 delta_t = 0.009
 conn = np.empty(n)
 
-def link_nodes(nodes, graph):
+def link_nodes(nodes):
     """Link nodes that are within range r of each other."""
     for i in range(len(nodes)):
         for j in range(i+1, len(nodes)):
-            nodes[i].link_to(nodes[j], r, graph)
+            nodes[i].link_to(nodes[j], r)
             
-def update_neighbors(nodes, graph):
+def update_neighbors(nodes):
     for node in nodes:
         for other_node in nodes:
             if node is not other_node:
-                node.link_to(other_node, r, graph)
+                node.link_to(other_node, r)
             else: #cannot add yourself as a neighbor
                 continue
         
@@ -69,14 +69,14 @@ def update_conn(nodes, cur_step):
         conn[50 - 1] = np.linalg.matrix_rank(adj_m) / 100
         
        
-def draw_conn(nodes, graph):
+def draw_conn(nodes):
     conns = [[],[]]
     for node in nodes:
         for neighbor in node.neighbors:
             conns.append([[node.position[0], node.position[1]], [neighbor.position[0], neighbor.position[1]]])
-            graph.plot(*zip(*conns), color='blue', linewidth=0.2)
+            plt.plot(*zip(*conns), color='blue', linewidth=0.2)
   
-def draw_paths(nodes, graph):
+def draw_paths(nodes):
     for node in nodes:
         # Check if the node has previous positions stored
         if node.prev_pos:
@@ -84,9 +84,9 @@ def draw_paths(nodes, graph):
             path_points = node.prev_pos + [node.position]
             # Convert the list of positions into a format suitable for plotting (two lists: one for x and another for y)
             x_vals, y_vals = zip(*path_points)
-            graph.plot(x_vals, y_vals, color='blue', linewidth=0.3, alpha=0.5)
+            plt.plot(x_vals, y_vals, color='blue', linewidth=0.3, alpha=0.5)
 
-def draw_nodes(nodes, graph):
+def draw_nodes(nodes):
     # Initialize arrays to store the x and y coordinates
     x = np.empty(len(nodes))
     y = np.empty(len(nodes))
@@ -97,9 +97,10 @@ def draw_nodes(nodes, graph):
         y[i] = node.position[1]
 
     # Plot the positions of the nodes on the graph as points
-    graph.plot(x, y, marker=(3, 1, 30), markersize=8, color="blue", linestyle="None")
+    plt.plot(x, y, marker=(3, 1, 30), markersize=8, color="blue", linestyle="None")
     
-def draw_velocity_graph(nodes, graph, cur_step, ):
+#should create a seperate graph that isnt displayed and just show a png of the graph at the end...
+def draw_velocity_graph(nodes, cur_step, vel_graph):
     for node in nodes:
         # Determine the range of x values (simulation steps) to plot
         if cur_step < n:
@@ -117,7 +118,7 @@ def draw_velocity_graph(nodes, graph, cur_step, ):
         velocity_magnitudes = np.linalg.norm(node.prev_vel.reshape(-1, 2), axis=1)[:size]
 
         # Plot the velocity magnitudes over time for this node
-        graph.plot(x_values, velocity_magnitudes)
+        vel_graph.plot(x_values, velocity_magnitudes)
         
 def draw_connectivity_graph(connectivities, graph, cur_step):
     if cur_step < n:
@@ -133,73 +134,40 @@ def main():
     nodes = [SensorNode(np.random.rand(m) * space_dim, _) for _ in range(n)]
     cur_step = 0
     
+    #velocity graph setup
+    vel_graph = plt.figure(figsize=(5,5))
+    vel_graph.title = ("Velocity Graph")
+    #simulation graph
     #setup grid stuff for the plots
     plt.ion()
-    figure = plt.figure(figsize=(10,10))
-    grid = figure.add_gridspec(2,3)
-    sim_section = figure.add_subplot(grid[:2, 1:])
-    vel_section = figure.add_subplot(grid[0,0])
-    con_section = figure.add_subplot(grid[1,0])
-    figure.canvas.manager.set_window_title("MSN Fragmentation")
-    sim_section.set_title(f"Simulation Graph: Step {cur_step}")
-    sim_section.set_xlim(0, space_dim)
-    sim_section.set_ylim(0, space_dim)
-    vel_section.set_title("Velocity Graph")
-    vel_section.set_xlabel("Simulation step")
-    vel_section.set_ylabel("Velocity")
-    con_section.set_title("Connection Graph")
-    con_section.set_xlabel("Simulation Step")
-    con_section.set_ylabel("Connectivity")
+    plt.figure(figsize=(10,10))
+    plt.title(f"Simulation Graph: Step {cur_step}")
+    plt.xlim(-100, space_dim)
+    plt.ylim(-100, space_dim)
     
     #main simulation junk
     while True:
         print(cur_step)
-        sim_section.clear()  # Clear the previous drawings
-        sim_section.set_title(f"Simulation Graph: Step {cur_step}")
-        sim_section.set_xlim(-200, 200)
-        sim_section.set_ylim(-200, 200)
-        
         # update neighbors and sim
-        update_neighbors(nodes, sim_section)
+        update_neighbors(nodes)
         algo_1_update_locations(nodes)
         update_conn(nodes, cur_step)
         
         #display the state then write on the graphs:
-        draw_conn(nodes, sim_section)
-        draw_paths(nodes, sim_section)
-        draw_nodes(nodes, sim_section)
+        draw_conn(nodes, figure)
+        draw_paths(nodes, figure)
+        # draw_nodes(nodes, figure)
         
-        draw_velocity_graph(nodes, vel_section, cur_step)
-        draw_connectivity_graph(conn, con_section, cur_step)
+        # draw_velocity_graph(nodes, vel_section, cur_step)
+        # draw_connectivity_graph(conn, con_section, cur_step)
         #prob need to do something with updating the connection
         figure.canvas.draw()
         figure.canvas.flush_events()
         plt.pause(2)  # Adjust the pause time as needed for visualization
         cur_step += 1
-#using this to check if the math actually adds up b/c im dumb      
-def test():
-    nodes = [SensorNode(np.random.rand(m) * 100) for _ in range(20)]
-    figure = plt.figure(figsize=(10,10))
-    grid = figure.add_gridspec(2,3)
-    sim_section = figure.add_subplot(grid[:2, 1:])
-    vel_section = figure.add_subplot(grid[0,0])
-    con_section = figure.add_subplot(grid[1,0])
-    figure.canvas.manager.set_window_title("MSN Fragmentation")
-    sim_section.set_title("Simulation Graph: Step")
-    sim_section.set_xlim(-50, 200)
-    sim_section.set_ylim(-50, 200)
-    vel_section.set_title("Velocity Graph")
-    vel_section.set_xlabel("Simulation step")
-    vel_section.set_ylabel("Velocity")
-    con_section.set_title("Connection Graph")
-    con_section.set_xlabel("Simulation Step")
-    con_section.set_ylabel("Connectivity")
-    
-    # link_nodes(nodes, sim_section)
-    update_neighbors(nodes, sim_section) #this works fine so thats cool.
-    algo_1_update_locations(nodes)
-    plt.show()
-
         
 if __name__ == '__main__':
+    #Dont bother showing velocity graphs or connectivity graph until 
+    #
+    
     main()

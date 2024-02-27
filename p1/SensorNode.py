@@ -14,11 +14,11 @@ class SensorNode:
         """Calculate Euclidean distance to another node."""
         return np.linalg.norm(self.position - other_node.position)
 
-    def link_to(self, other_node, r, graph):
+    def link_to(self, other_node, r):
         """Visualize a link to another node if within range r."""
         if self.distance_to(other_node) <= r:
             self.neighbors.append(other_node)
-            graph.plot([self.position[0], other_node.position[0]], [self.position[1], other_node.position[1]], 'b-', alpha=0.5)
+            plt.plot([self.position[0], other_node.position[0]], [self.position[1], other_node.position[1]], 'b-', alpha=0.5)
 
     def update_vel(self, acceleration):
         #add our current velocity to the prev velocity array, then add the new velocities
@@ -35,7 +35,7 @@ class SensorNode:
     def __sub__(self, other):
         return [self.position[0] - other.position[0], self.position[1] - other.position[1]]
     
-    
+    #is not used for some odd reason :)))))
     def __mul__(self, other):
         print("yah mon")
         if isinstance(other, np.float64) or isinstance(other, int) or isinstance(other, float):
