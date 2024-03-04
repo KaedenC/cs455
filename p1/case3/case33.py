@@ -13,8 +13,7 @@ delta_t = 0.009
 c1_alpha = 30
 c2_alpha = 2 * np.sqrt(c1_alpha)
 
-c1_mt = 1.1
-c2_mt = 2 * np.sqrt(c1_mt)
+static_target = []
 
 #region Algorithm Supplements + Algo 1
 def magnitude(i):
@@ -77,10 +76,8 @@ def algo_2_update_locations(nodes, dynamic_target):
         c_term *= c2_alpha
         
         #navigational feedback term
-        nf_term_g = c1_mt * np.array([i_agent.x - dynamic_target.x, i_agent.y - dynamic_target.y])
-        nf_term_c = c2_mt * np.array(i_agent.vel_diff(dynamic_target))
-        
-        nf_term = nf_term_g - nf_term_c
+        nf_term_g = c1_mt * np.array([i_agent.x , i_agent.y ])
+        nf_term_c = c2_mt * np.array([i_agent.velocity, j_agent.velocity])
         
         ui = (g_term + c_term - nf_term) * delta_t
         accels.append(ui)
@@ -187,34 +184,14 @@ def check_and_plot_connectivity(nodes):
     plt.axhline(y=1, color='r', linestyle='--')
     plt.savefig('connectivity_over_time.png')
     plt.close()
-    
-def center_of_mass(nodes):
-        total_x = sum(node.x for node in nodes)
-        total_y = sum(node.y for node in nodes)
-        num_nodes = len(nodes)
-        return [total_x / num_nodes, total_y / num_nodes]
 
-def update_g_agent(g_agent):
-    #have the node move in a sine wave.
-    pass
-
+        
 nodes = [SN.SensorNode(random.uniform(0, 50), random.uniform(0, 50), i) for i in range(100)]
-
-#to init, find the center of mass of the msn, create a node for the other nodes to follow
-
-g_pos = center_of_mass(nodes)
-g_agent = SN.SensorNode(g_pos[0], g_pos[1], 101)
-
-#you could also do this where theres a pre-determined path that was made before the algorithm starts, i think that would be easier.
-
-
+previous_positions = {}
 
 for iteration in range(201):
     update_neighbors(nodes)
-    #update the g_agent with its sine wave
-    update_g_agent()
-    
-    #algo_2_update_locations(nodes) 
+    algo_2_update_locations(nodes) 
     plot_network(nodes, iteration)
 
 plot_velocity_values(nodes)
