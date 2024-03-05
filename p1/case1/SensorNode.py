@@ -44,20 +44,6 @@ class SensorNode:
             self.neighbors.append(other_node) #Add to neighbors
             other_node.neighbors.append(self) #Also need to make the other node know that its a neighbor of this node.
             
-    
-    #the following methods are for the gamma agent
-    def update_position(self, dx=0, dy=0):
-        self.prev_pos.append((self.x, self.y))
-        self.x += dx
-        self.y += dy
-        self.prev_vel.append((dx, dy)) 
-
-    def move_in_sine_wave(self, A, omega, vx, steps, dt):
-        for t in range(steps):
-            dx = vx * dt
-            dy = A * math.sin(omega * t * dt)
-            self.update_position(dx, dy)
-
     def __sub__(self, other):
         return [self.x - other.x, self.y - other.y]
     
@@ -70,6 +56,5 @@ class SensorNode:
     
     def __truediv__(self, other):
         return [self.x / other, self.y / other]
-    
     
     

@@ -108,7 +108,7 @@ def plot_trajectories(nodes):
 
 def check_and_plot_connectivity(nodes):
     num_nodes = len(nodes)
-    A = np.zeros((num_nodes, num_nodes)) 
+    A = np.zeros((num_nodes, num_nodes))
     for i, node_i in enumerate(nodes):
         for j, node_j in enumerate(nodes):
             if node_j in node_i.neighbors:
@@ -119,7 +119,6 @@ def check_and_plot_connectivity(nodes):
         rank_A = np.linalg.matrix_rank(A)
         connectivity_t = (rank_A / num_nodes)
         connectivity_values.append(connectivity_t)
-    
     plt.figure()
     plt.plot(connectivity_values, '-o')
     plt.title('Connectivity of the MSN Over Time')
@@ -135,7 +134,7 @@ def center_of_mass(nodes):
         total_y = sum(node.y for node in nodes)
         num_nodes = len(nodes)
         return [total_x / num_nodes, total_y / num_nodes]
-    
+  
 def plot_gamma_agent(node):
     x_vals, y_vals = zip(*node.prev_pos)
     plt.figure(figsize=(10, 5))
@@ -144,29 +143,27 @@ def plot_gamma_agent(node):
     plt.xlabel('X Position')
     plt.ylabel('Y Position')
     plt.grid(True)
-    plt.savefig("Gamma_Agent_Trajectory.png")
+    plt.savefig("Gamma_Agent_Trajectory.png")  
     
 def plot_COM(COM):
     x_vals, y_vals = zip(*COM)
     plt.figure(figsize=(10,5))
     plt.plot(x_vals, y_vals, marker='o')
-    plt.title("MSN's actual sine wave trajectory")
+    plt.title("MSN's actual circular trajectory")
     plt.xlabel('X position')
     plt.ylabel('Y Position') 
     plt.grid(True)
     plt.savefig("Center_of_Mass_Trajectory.png")
-
-g_pos = []
+    
 nodes = [SN.SensorNode(random.uniform(0, 150), random.uniform(0, 150), i) for i in range(100)]
+g_pos = []
 g_pos.append(center_of_mass(nodes))
-A = 5
-T = 100
-omega = (2 * np.pi) / T
-vx = 2
-steps = 201
-g_agent = SN.SensorNode(g_pos[0][0], g_pos[0][1], 101)
 
-g_agent.move_in_sine_wave(A, omega, vx, steps, 1)
+omega = (2 * np.pi) / 20  
+steps = 201
+g_agent = SN.SensorNode(0, 0, 101)
+
+g_agent.move_in_circular_motion(omega, 0, 0, steps)
 
 for iteration in range(201):
     update_neighbors(nodes)
@@ -176,7 +173,7 @@ for iteration in range(201):
     g_agentvel = g_agent.prev_vel[iteration]
     algo_2_update_locations(nodes, g_agentx, g_agenty, g_agentvel)
     plot_network(nodes, iteration)
-
+    
 plot_velocity_values(nodes)
 plot_prev_positions_with_trajectory(nodes)
 check_and_plot_connectivity(nodes)
