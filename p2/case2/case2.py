@@ -1,9 +1,12 @@
+from matplotlib.patches import Circle
 import SensorNode as SN
 import numpy as np
 import matplotlib.pyplot as plt
 import math
 import random
 import algorithmsupplements as AS
+
+obstacles = [((100, 25), 15), ((150, 30), 25), ((200, 25), 30)]
 
 n = 100
 m = 2
@@ -55,6 +58,11 @@ def plot_network(nodes, iteration):
         ax.plot(node.x, node.y, 'b>') 
         for neighbor in node.neighbors:
             ax.plot([node.x, neighbor.x], [node.y, neighbor.y], 'b-') 
+            
+    for (x, y), radius in obstacles:
+        obstacle = Circle((x, y), radius, color='r', fill=True)
+        ax.add_patch(obstacle)
+        
     plt.xlim(-0, 400)
     plt.ylim(-0, 300)
     plt.title(f'Iteration {iteration}')

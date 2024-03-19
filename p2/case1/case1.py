@@ -1,3 +1,4 @@
+from matplotlib.patches import Circle
 import SensorNode as SN
 import numpy as np
 import matplotlib.pyplot as plt
@@ -12,6 +13,9 @@ import algorithmsupplements as AS
 #uialpha = c1alpha * (sum (sigma_norm(qj - qi))ni,j ) + c2alpha * (sum (aij(q)(pj-pi)))
 
 #uibeta = c1beta * (sum (psipeta * (sigmanorm(q^i,k - qi))n^i,k))
+obstacles = [((100, 25), 15), ((150, 30), 25), ((200, 25), 30)]
+g_target = [250, 25]
+
 
 n = 150
 m = 2
@@ -63,7 +67,12 @@ def plot_network(nodes, iteration):
         ax.plot(node.x, node.y, 'b>') 
         for neighbor in node.neighbors:
             ax.plot([node.x, neighbor.x], [node.y, neighbor.y], 'b-') 
-    plt.xlim(-0, 400)
+            
+    for (x, y), radius in obstacles:
+        obstacle = Circle((x, y), radius, color='r', fill=True)
+        ax.add_patch(obstacle)
+        
+    plt.xlim(-0, 300)
     plt.ylim(-0, 300)
     plt.title(f'Iteration {iteration}')
     if iteration == 0 or iteration == 40 or iteration == 80 or iteration == 120 or iteration == 160 or iteration == 200:
@@ -169,7 +178,7 @@ def create_obstacles():
 
 
 g_pos = []
-nodes = [SN.SensorNode(random.uniform(0, 75), random.uniform(0, 75), i) for i in range(n)]
+nodes = [SN.SensorNode(random.uniform(0, 70), random.uniform(0, 70), i) for i in range(n)]
 g_pos.append(center_of_mass(nodes))
 A = 5
 T = 100
@@ -178,13 +187,13 @@ vx = 2
 steps = 201
 g_agent = SN.SensorNode(250, 25, 101)
 
-for iteration in range(201):
+for iteration in range(5):
     update_neighbors(nodes)
-    g_pos.append(center_of_mass(nodes))
-    g_agentx = g_agent.prev_pos[iteration][0]
-    g_agenty = g_agent.prev_pos[iteration][1]
-    g_agentvel = g_agent.prev_vel[iteration]
-    algo_2_update_locations(nodes, g_agentx, g_agenty, g_agentvel)
+    # g_pos.append(center_of_mass(nodes))
+    # g_agentx = g_agent.prev_pos[iteration][0]
+    # g_agenty = g_agent.prev_pos[iteration][1]
+    # g_agentvel = g_agent.prev_vel[iteration]
+    # algo_2_update_locations(nodes, g_agentx, g_agenty, g_agentvel)
     plot_network(nodes, iteration)
 
 plot_velocity_values(nodes)
