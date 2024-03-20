@@ -10,12 +10,10 @@ import algorithmsupplements as AS
 
 #glhf algorithm 3 has a similar format to algorithm2 but it has some differences
 
-#uialpha = c1alpha * (sum (sigma_norm(qj - qi))ni,j ) + c2alpha * (sum (aij(q)(pj-pi)))
 
 #uibeta = c1beta * (sum (psipeta * (sigmanorm(q^i,k - qi))n^i,k))
 obstacles = [((100, 25), 15), ((150, 30), 25), ((200, 25), 30)]
 g_target = [250, 25]
-
 
 n = 150
 m = 2
@@ -30,7 +28,7 @@ c2_alpha = 2 * np.sqrt(c1_alpha)
 c1_mt = 1.1
 c2_mt = 2 * np.sqrt(c1_mt)
 
-def algo_2_update_locations(nodes, g_agentx, g_agenty, g_agentvel):
+def algo_2_update_locations(nodes, g_agentx, g_agenty, g_agentvel = [0,0]):
     accels = []
     for i_agent in nodes:
         g_term = np.zeros(2)
@@ -47,6 +45,8 @@ def algo_2_update_locations(nodes, g_agentx, g_agenty, g_agentvel):
         nf_term_c = c2_mt * np.array([i_agent.velocity[0] - g_agentvel[0], i_agent.velocity[1] - g_agentvel[1]]) 
         nf_term = nf_term_g - nf_term_c
         
+        #uialpha = c1alpha * (sum (sigma_norm(qj - qi))ni,j ) + c2alpha * (sum (aij(q)(pj-pi)))
+        
         ui = ((g_term * c1_alpha) + (c_term * c2_alpha) - nf_term) * delta_t
         accels.append(ui)
     for node, accel in zip(nodes, accels):
@@ -60,9 +60,9 @@ def update_neighbors(nodes):
             if node != potential_neighbor:
                 node.link_node(potential_neighbor, r)      
 
-def plot_network(nodes, iteration):
-    plt.figure()
-    ax = plt.gca()
+def plot_network(nodes, iteration, figure):
+    figure.clf()
+    ax = figure.gca()
     for node in nodes:
         ax.plot(node.x, node.y, 'b>') 
         for neighbor in node.neighbors:
@@ -72,12 +72,11 @@ def plot_network(nodes, iteration):
         obstacle = Circle((x, y), radius, color='r', fill=True)
         ax.add_patch(obstacle)
         
-    plt.xlim(-0, 300)
-    plt.ylim(-0, 300)
-    plt.title(f'Iteration {iteration}')
-    if iteration == 0 or iteration == 40 or iteration == 80 or iteration == 120 or iteration == 160 or iteration == 200:
-        plt.savefig(f'network_iteration_{iteration}.png', bbox_inches='tight')
-    plt.close()
+    ax.plot(g_target[0], g_target[1], 'ro')
+        
+    figure.suptitle(f'Iteration {iteration}')
+    if iteration == 0 or iteration == 5 or iteration == 10 or iteration == 15 or iteration == 20 or iteration == 200:
+        figure.savefig(f'network_iteration_{iteration}.png', bbox_inches='tight')
     
 def plot_velocity_values(nodes):
     plt.figure()
@@ -153,19 +152,12 @@ def center_of_mass(nodes):
         num_nodes = len(nodes)
         return [total_x / num_nodes, total_y / num_nodes]
     
-def plot_gamma_agent(node):
-    x_vals, y_vals = zip(*node.prev_pos)
-    plt.figure(figsize=(10, 5))
-    plt.plot(x_vals, y_vals, marker='o')
-    plt.title("Node's Sine Wave Trajectory")
-    plt.xlabel('X Position')
-    plt.ylabel('Y Position')
-    plt.grid(True)
-    plt.savefig("Gamma_Agent_Trajectory.png")
     
 def plot_COM(COM):
     x_vals, y_vals = zip(*COM)
     plt.figure(figsize=(10,5))
+    plt.plot()
+    plt.plot(g_target[0], g_target[1], marker='>', color='red')
     plt.plot(x_vals, y_vals, marker='o')
     plt.title("MSN's actual sine wave trajectory")
     plt.xlabel('X position')
@@ -173,31 +165,16 @@ def plot_COM(COM):
     plt.grid(True)
     plt.savefig("Center_of_Mass_Trajectory.png")
 
-def create_obstacles():
-    pass
-
-
-g_pos = []
 nodes = [SN.SensorNode(random.uniform(0, 70), random.uniform(0, 70), i) for i in range(n)]
-g_pos.append(center_of_mass(nodes))
-A = 5
-T = 100
-omega = (2 * np.pi) / T
-vx = 2
-steps = 201
-g_agent = SN.SensorNode(250, 25, 101)
 
-for iteration in range(5):
+figure = plt.figure(figsize=(10, 10))
+
+for iteration in range(20):
+    print(iteration)
     update_neighbors(nodes)
-    # g_pos.append(center_of_mass(nodes))
-    # g_agentx = g_agent.prev_pos[iteration][0]
-    # g_agenty = g_agent.prev_pos[iteration][1]
-    # g_agentvel = g_agent.prev_vel[iteration]
-    # algo_2_update_locations(nodes, g_agentx, g_agenty, g_agentvel)
-    plot_network(nodes, iteration)
+    algo_2_update_locations(nodes, g_target[0], g_target[1])
+    plot_network(nodes, iteration, figure)
 
 plot_velocity_values(nodes)
 plot_prev_positions_with_trajectory(nodes)
 check_and_plot_connectivity(nodes)
-plot_gamma_agent(g_agent)
-plot_COM(g_pos)

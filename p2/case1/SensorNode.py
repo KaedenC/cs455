@@ -7,6 +7,7 @@ class SensorNode:
         self.y = positiony
         self.velocity = [0,0]
         
+        self.beta_neighbors = []
         self.neighbors = []
         self.prev_pos = []
         self.prev_vel = []
