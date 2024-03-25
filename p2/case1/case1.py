@@ -77,13 +77,13 @@ def plot_network(nodes, iteration, figure):
     figure.suptitle(f'Iteration {iteration}')
     if iteration == 0 or iteration == 5 or iteration == 10 or iteration == 15 or iteration == 20 or iteration == 200:
         figure.savefig(f'network_iteration_{iteration}.png', bbox_inches='tight')
-    
+
 def plot_velocity_values(nodes):
-    plt.figure()
+    plt.figure(figsize=(10,5))
     for node in nodes:
         step_numbers = list(range(len(node.prev_vel)))
         velocities = [np.sqrt(vel[0]**2 + vel[1]**2) for vel in node.prev_vel]
-        plt.plot(step_numbers, velocities, '-o', label=f'Node {node.index}')
+        plt.plot(step_numbers, velocities, label=f'Node {node.index}')
     plt.title('Velocity Values of Nodes at Each Step')
     plt.xlabel('Step Number')
     plt.ylabel('Velocity Magnitude')
@@ -96,7 +96,7 @@ def plot_prev_positions_with_trajectory(nodes):
     for node in nodes:
         x_positions = [pos[0] for pos in node.prev_pos]
         y_positions = [pos[1] for pos in node.prev_pos]
-        plt.plot(x_positions, y_positions, marker='o', markersize=4, label=f'Node {node.index}') 
+        plt.plot(x_positions, y_positions, label=f'Node {node.index}', color='m')
     plt.title('Trajectories of Nodes')
     plt.xlabel('X position')
     plt.ylabel('Y position')
