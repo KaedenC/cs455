@@ -77,13 +77,13 @@ def plot_network(nodes, iteration, figure):
     figure.suptitle(f'Iteration {iteration}')
     if iteration == 0 or iteration == 5 or iteration == 10 or iteration == 15 or iteration == 20 or iteration == 200:
         figure.savefig(f'network_iteration_{iteration}.png', bbox_inches='tight')
-
+    
 def plot_velocity_values(nodes):
     plt.figure(figsize=(10,5))
     for node in nodes:
         step_numbers = list(range(len(node.prev_vel)))
         velocities = [np.sqrt(vel[0]**2 + vel[1]**2) for vel in node.prev_vel]
-        plt.plot(step_numbers, velocities, label=f'Node {node.index}')
+        plt.plot(step_numbers, velocities, '-o', label=f'Node {node.index}')
     plt.title('Velocity Values of Nodes at Each Step')
     plt.xlabel('Step Number')
     plt.ylabel('Velocity Magnitude')
@@ -96,7 +96,7 @@ def plot_prev_positions_with_trajectory(nodes):
     for node in nodes:
         x_positions = [pos[0] for pos in node.prev_pos]
         y_positions = [pos[1] for pos in node.prev_pos]
-        plt.plot(x_positions, y_positions, label=f'Node {node.index}', color='m')
+        plt.plot(x_positions, y_positions, marker='o', markersize=4, label=f'Node {node.index}') 
     plt.title('Trajectories of Nodes')
     plt.xlabel('X position')
     plt.ylabel('Y position')
@@ -164,6 +164,26 @@ def plot_COM(COM):
     plt.ylabel('Y Position') 
     plt.grid(True)
     plt.savefig("Center_of_Mass_Trajectory.png")
+
+def obstacle_calculations(obstacle_position, obstacle_radius, x, y, position_nodes, n):
+    q_k = np.zeros((n, 2))
+    I = np.eye(n)
+    distance = np.zeros(n)
+
+    for i in range(n):
+        distance[i] = np.sqrt((obstacle_position[0] - x[i])**2 + (obstacle_position[1] - y[i])**2)
+
+    myu = obstacle_radius / distance
+    ak = np.column_stack((x - obstacle_position[0], y - obstacle_position[1]))
+    P = I - np.outer(ak, ak)
+    p_k = np.dot(P, position_nodes)
+
+    for i in range(n):
+        p_k[i] = myu[i] * p_k[i]
+        q_k[i] = myu[i] * np.array([x[i], y[i]]) + (1 - myu[i]) * obstacle_position
+
+    return q_k, p_k
+
 
 nodes = [SN.SensorNode(random.uniform(0, 70), random.uniform(0, 70), i) for i in range(n)]
 
